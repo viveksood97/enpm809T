@@ -31,6 +31,7 @@ SOFTWARE.
 '''  
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def movingAverage(dataIn, window):
@@ -38,16 +39,28 @@ def movingAverage(dataIn, window):
     for i in range(len(dataIn)-window + 1):
         output.append(sum(dataIn[i:i+window])/window)
     return output
+
 def main():
     yPlot = list()
-    window = 128
+    windows = [pow(2,x+1) for x in range(7)]
     with open('imudata.txt') as imuData:
         for line in imuData:
             data = float(line.split(" ")[4])
             yPlot.append(data)
     
-    yPlotAvg = movingAverage(yPlot, window)
-    plt.plot(yPlot)
+    for window in windows:
+        yPlotAvg = movingAverage(yPlot, window)
+        xPlot = [x for x in range(len(yPlotAvg))]
+        plt.figure()
+        plt.plot(xPlot, yPlot[0:len(yPlotAvg)],alpha=0.8, c='red', label='Raw Data')
+        plt.plot(xPlot, yPlotAvg, c='g', label='Averaged Data')
+        plt.plot(xPlot, [np.mean(yPlot) for i in range(len(xPlot))], c='blue', label='Mean')
+        plt.plot(xPlot, [np.mean(yPlot) + np.std(yPlot) for i in range(len(xPlot))],ls='--', c='orange', label='Standard Deviation')
+        plt.plot(xPlot, [np.mean(yPlot) - np.std(yPlot) for i in range(len(xPlot))],ls='--', c= 'orange',)
+        plt.title(f'Moving Average Plot for Window Size {window}')
+        plt.xlabel('Pitch index')
+        plt.ylabel('Pitch Angle (degrees)')
+        plt.legend()
     plt.show()
 if __name__ == '__main__':
     main()
