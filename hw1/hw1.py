@@ -1,7 +1,7 @@
 
 '''
 @Copyright 2022 Vivek Sood
-@file hw1
+@file hw1.py
 @author Vivek Sood
 @date 02/07/2022
  
@@ -33,6 +33,15 @@ SOFTWARE.
 import matplotlib.pyplot as plt
 import numpy as np
 
+'''
+@brief Calculates Moving Average
+
+@param[in] dataIn Raw sensor data
+
+@param[in] window Window size
+
+@return averaged sensor data
+'''
 
 def movingAverage(dataIn, window):
     output = list()
@@ -40,6 +49,10 @@ def movingAverage(dataIn, window):
         output.append(sum(dataIn[i:i+window])/window)
     return output
 
+'''
+@brief main function
+@return none
+'''
 def main():
     yPlot = list()
     windows = [pow(2,x+1) for x in range(7)]
