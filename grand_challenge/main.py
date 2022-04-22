@@ -10,11 +10,27 @@ import serial
 def ticks_to_travel(dist):
     return (dist/(65*np.pi))*40
 
-travel = [ticks_to_travel(1000), ticks_to_travel(1000), ticks_to_travel(1000), ticks_to_travel(1000), ticks_to_travel(1000), ticks_to_travel(1000)]
+travel = [ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500)]
 # moves = ["backward", "forward"]
 # moves = ["forward", "backward", "forward", "backward", "forward", "backward"]
 # moves = ["forward", "backward"]
-moves = [-90, -0.1]
+moves = [0, "forward", 90, "forward", 180, "forward", -90, "forward"]
+# moves = [90, -90]
+
+def process_angle(line):
+    line = line.rstrip().lstrip()
+    line = str(line)
+    line = line.strip("'")
+    line = line.strip("b'")
+    angle = float(line)
+    
+    
+    if(angle >= 180):
+        current_angle = angle - 360
+    else:
+        current_angle = angle
+    
+    return current_angle
 
 def main():
     initialize = Initialize()
@@ -25,12 +41,13 @@ def main():
     ser = serial.Serial('/dev/ttyUSB0', 9600)
     count = 0
     #while(1):
-    prev_delta = 0
+    
     for index, move in enumerate(moves):
         left = 0
         right = 0
         prev_delta_encoder = 0
         encoders.encoders_reset()
+        prev_delta = 0
         sum_delta = 0
         if(move == "forward" or move == "backward"):
             while(travel[index] > left + right):
@@ -39,76 +56,57 @@ def main():
                     line = ser.readline()
                     
                     if(count > 10):
-                        
-                        line = line.rstrip().lstrip()
+                        current_angle = process_angle(line)
 
-                        line = str(line)
-                        line = line.strip("'")
-                        line = line.strip("b'")
-                        angle = float(line)
-                        
-                        
-                        if(angle >= 180):
-                            current_angle = angle - 360
-                        else:
-                            current_angle = angle
-                        # current_angle = -1 * angle
                 if(count > 10):
                     dutyCycle = 60
                     left, right = encoders.get_encoder_ticks()
                     
                     delta_encoder = left-right
-                    delta = current_angle
-                    pid = 10*delta + 0.01*(delta-prev_delta)+  0.01*(sum_delta) + delta_encoder - prev_delta_encoder
+                    
+                    delta = moves[index - 1] - current_angle
+
+                    # pid = delta + 0.01*(delta-prev_delta)+  0.01*(sum_delta) + delta_encoder - prev_delta_encoder
+                    pid = delta + delta_encoder - prev_delta_encoder
                     prev_delta = delta
                     sum_delta += delta
                     prev_delta_encoder = delta_encoder
                     
                     if(move == "forward"):
-                        motors.move([0, max(min(100, dutyCycle + pid),0), max(min(100, dutyCycle - pid),0), 0])
+                        motors.move([0, max(min(100, dutyCycle - pid),0), max(min(100, dutyCycle + pid),0), 0])
                     if(move == "backward"):
-                        motors.move([max(min(100, dutyCycle - pid),0), 0, 0, max(min(100, dutyCycle + pid),0)])
+                        motors.move([max(min(100, dutyCycle + pid),0), 0, 0, max(min(100, dutyCycle - pid),0)])
         else:
+            delta = 100000
             target_angle = move
+            duty_cycle = 30
             if(target_angle < 0):
                 to_move = [0, 60, 0, 60]
             else:
                 to_move = [60, 0, 60, 0]
             flag = True
-            
-            while(flag):
+            while(abs(delta) > 1):
                 if(ser.in_waiting > 0):
                     count += 1
                     line = ser.readline()
                     
                     if(count > 10):
-                        
-                        line = line.rstrip().lstrip()
-
-                        line = str(line)
-                        line = line.strip("'")
-                        line = line.strip("b'")
-                        angle = float(line)
-                        if(angle >= 180):
-                            current_angle = angle - 360
-                        else:
-                            current_angle = angle
-                        # current_angle = -1 * angle
-                        
+                        current_angle = process_angle(line)
                 
                 if(count > 10):
-                    delta = current_angle - target_angle
-                    if(target_angle < 0):
-                        print(delta, current_angle, target_angle)
-                        if(delta > 0):
-                            motors.move(to_move)
-                        else:
-                            flag = False
+                    delta = target_angle - current_angle
+                    if(delta < 10):
+                        print(delta)
+                    
+                    if(delta < 10):
+                        # if(abs(delta) < 10):
+                            # print(delta, current_angle, target_angle)
+                        motors.move([0, max(min(40, duty_cycle + abs(delta)),0), 0, max(min(40, duty_cycle + abs(delta)),0)])
+                        #motors.move([0, 35, 0, 35])
+                            
                     else:
-                        if(delta < 0):
-                            motors.move(to_move)
-                        else:
-                            flag = False
+                        motors.move([max(min(40, duty_cycle + abs(delta)),0), 0, max(min(40, duty_cycle + abs(delta)),0), 0])
+                        # motors.move([35, 0, 35, 0])
 
                     
         motors.move([0, 0,0,0])
