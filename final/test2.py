@@ -18,16 +18,28 @@ def ticks_to_travel(distance):
     wheel_perimeter = 65*np.pi
     return (distance/(wheel_perimeter))*20
 
+def ticks_to_distance(ticks):
+    return (ticks*(65*np.pi))/40
 
+def localization(append_ticks, angle, trajectory_x, trajectory_y):
+    if(angle < 0):
+        angle = 360 + angle
+    print(ticks_to_distance(append_ticks)*np.cos(np.deg2rad(angle)), ticks_to_distance(append_ticks)*np.sin(np.deg2rad(angle)))
+    trajectory_x.append(trajectory_x[-1] + ticks_to_distance(append_ticks)*np.cos(np.deg2rad(angle)))
+    trajectory_y.append(trajectory_y[-1] +ticks_to_distance(append_ticks)*np.sin(np.deg2rad(angle)))
 
-travel = [ticks_to_travel(1000), ticks_to_travel(234), ticks_to_travel(254.5), ticks_to_travel(1000), ticks_to_travel(200), ticks_to_travel(210)]
+# travel = [ticks_to_travel(1000), ticks_to_travel(234), ticks_to_travel(254.5), ticks_to_travel(1000), ticks_to_travel(200), ticks_to_travel(210)]
+# moves = ["forward",  "right", "left", "backward", "left", "right"]
+travel = [ticks_to_travel(500), ticks_to_travel(234), ticks_to_travel(500), ticks_to_travel(234), ticks_to_travel(500), ticks_to_travel(234), ticks_to_travel(500), ticks_to_travel(234)]
 moves = ["forward",  "right", "left", "backward", "left", "right"]
 # travel = [ticks_to_travel(235)]
 # moves = ["right"]
 
 time.sleep(5)
 
-
+trajectory_x = [0]
+trajectory_y = [0]
+append_ticks = 0
 for index, move in enumerate(moves):
     left = 0
     right = 0
@@ -55,6 +67,9 @@ for index, move in enumerate(moves):
             delta_prev = delta
             errorSum += delta
 
+    if(move=="forward"):
+        append_ticks = left+right
+        localization(append_ticks, moves[index - 1], trajectory_x, trajectory_y)
     motors.move([0, 0, 0, 0])
 
 fig, axs = plt.subplots(2, sharex=True, sharey=True)
