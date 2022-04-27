@@ -24,8 +24,8 @@ def localization(append_ticks, angle, trajectory_x, trajectory_y):
 # travel = [ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500), ticks_to_travel(0), ticks_to_travel(500),  ticks_to_travel(0)]
 # moves = [0, "forward", 90, "forward", 180, "forward", -90, "forward", 0]
 
-travel = [ticks_to_travel(0), ticks_to_travel(510), ticks_to_travel(0), ticks_to_travel(505), ticks_to_travel(0), ticks_to_travel(490), ticks_to_travel(0), ticks_to_travel(525),  ticks_to_travel(0)]
-moves = [0, "forward", 75, "forward", 194, "forward", -74, "forward", 15]
+#travel = [ticks_to_travel(0), ticks_to_travel(510), ticks_to_travel(0), ticks_to_travel(505), ticks_to_travel(0), ticks_to_travel(490), ticks_to_travel(0), ticks_to_travel(525),  ticks_to_travel(0)]
+#moves = [0, "forward", 75, "forward", 194, "forward", -74, "forward", 15]
 
 
 def process_angle(line):
