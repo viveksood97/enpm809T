@@ -40,29 +40,31 @@ class Camera:
 
     def detect_contours(self, img, start_image):
         contours, _= cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        img1 = cv2.imread("./sample.png")
-        gray_img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-        binary_image = cv2.threshold(gray_img, 1, 255, cv2.THRESH_BINARY)[1]
-        contours1, _= cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # img1 = cv2.imread("./sample.png")
+        # gray_img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        # binary_image = cv2.threshold(gray_img, 1, 255, cv2.THRESH_BINARY)[1]
+        # contours1, _= cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        temp = 1000
+        # temp = 1000
         
-        for contour in contours:
-            if(temp > cv2.matchShapes(contour, contours1[0], 1, 0)):
-                temp = cv2.matchShapes(contour, contours1[0], 1, 0)
-                final_contour = contour
-      
-        if(temp > 0.2):
-            radius = 0
-        else:
-            centers, radius = cv2.minEnclosingCircle(final_contour)
         # for contour in contours:
-        #     approx = cv2.approxPolyDP(contour,0.01*cv2.arcLength(contour,True),True)
-        #     area = cv2.contourArea(contour)
-        #     # print(f"area {area}, shape {len(approx)}")
-        #     if ((len(approx) > 6) & (area > 1000) ):
-        #         # print(len(approx),area)
-        #         centers, radius = cv2.minEnclosingCircle(contour)
+        #     if(temp > cv2.matchShapes(contour, contours1[0], 1, 0)):
+        #         temp = cv2.matchShapes(contour, contours1[0], 1, 0)
+        #         final_contour = contour
+      
+        # if(temp > 0.2):
+        #     radius = 0
+        # else:
+        #     centers, radius = cv2.minEnclosingCircle(final_contour)
+
+        radius = 0
+        for contour in contours:
+            approx = cv2.approxPolyDP(contour,0.01*cv2.arcLength(contour,True),True)
+            area = cv2.contourArea(contour)
+            # print(f"area {area}, shape {len(approx)}")
+            if ((len(approx) > 6) & (area > 1000) ):
+                # print(len(approx),area)
+                centers, radius = cv2.minEnclosingCircle(contour)
                 
         if(radius != 0):
             center = (int(centers[0]),int(centers[1]))

@@ -106,6 +106,8 @@ def main():
                   #     print(delta)
                   # if(move == 180):
                   # print(target_angle, current_angle)
+                  if(diffrential < 0.01):
+                     break
                   if(delta < 0):
                      motors.move([0, max(min(43, duty_cycle + abs(pid)),0), 0, max(min(43, duty_cycle + abs(pid)),0)])
                      #motors.move([0, 35, 0, 35])
@@ -113,8 +115,8 @@ def main():
                   else:
                      motors.move([max(min(43, duty_cycle + abs(pid)),0), 0, max(min(43, duty_cycle + abs(pid)),0), 0])
 
-      # cv2.imshow('Debugger',cv2.resize(debug,None,fx=0.8,fy=0.7))
-
+      cv2.imshow('Debugger',cv2.resize(debug,None,fx=0.8,fy=0.7))
+      
       # cv2.imshow('Shape Detection', binary_image)
       # out.write(final)
 
